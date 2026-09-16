@@ -25,6 +25,14 @@ enum Fixtures {
     {"updatedAt":1789000200,"totalPlayers":2352,"totalServers":972}
     """
 
+    static let topSeries = """
+    {"updatedAt":1789000200,"servers":[
+      {"id":"aaa","name":"TechMines","players":239,"maxPlayers":300,"change24h":45,
+       "points":[[1788999300,230],[1789000200,239]]},
+      {"id":"bbb","name":"MineRefine","players":118,"maxPlayers":null,"change24h":null,"points":[]}
+    ]}
+    """
+
     static let server = """
     {"updatedAt":1789000200,
      "server":{"id":"aaa","name":"TechMines","ip":"techmines.minehut.gg","players":239,"maxPlayers":null,

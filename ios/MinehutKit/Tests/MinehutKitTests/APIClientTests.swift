@@ -15,6 +15,7 @@ final class APIClientTests: XCTestCase {
         let c = APIClient(baseURL: base)
         XCTAssertEqual(c.url(for: .top).absoluteString, "https://w.example.dev/v1/top")
         XCTAssertEqual(c.url(for: .stats).absoluteString, "https://w.example.dev/v1/stats")
+        XCTAssertEqual(c.url(for: .topSeries).absoluteString, "https://w.example.dev/v1/top/series")
         XCTAssertEqual(c.url(for: .rising(.sixHours)).absoluteString, "https://w.example.dev/v1/rising?window=6h")
         XCTAssertEqual(c.url(for: .server(id: "aaa", range: .week)).absoluteString, "https://w.example.dev/v1/server/aaa?range=7d")
         let slashed = APIClient(baseURL: URL(string: "https://w.example.dev/")!)
@@ -24,6 +25,7 @@ final class APIClientTests: XCTestCase {
     func testCacheKeys() {
         XCTAssertEqual(APIClient.Endpoint.top.cacheKey, "top")
         XCTAssertEqual(APIClient.Endpoint.stats.cacheKey, "stats")
+        XCTAssertEqual(APIClient.Endpoint.topSeries.cacheKey, "top_series")
         XCTAssertEqual(APIClient.Endpoint.rising(.oneHour).cacheKey, "rising_1h")
         XCTAssertEqual(APIClient.Endpoint.server(id: "aaa", range: .month).cacheKey, "server_aaa_30d")
     }

@@ -35,6 +35,20 @@ final class ModelsTests: XCTestCase {
         XCTAssertEqual(stats, StatsResponse(updatedAt: 1789000200, totalPlayers: 2352, totalServers: 972))
     }
 
+    func testDecodesTopSeries() throws {
+        let series = try decoder.decode(TopSeriesResponse.self, from: Fixtures.data(Fixtures.topSeries))
+        XCTAssertEqual(series.updatedAt, 1789000200)
+        XCTAssertEqual(series.servers.count, 2)
+        XCTAssertEqual(series.servers[0].maxPlayers, 300)
+        XCTAssertEqual(
+            series.servers[0].points,
+            [GraphPoint(ts: 1788999300, players: 230), GraphPoint(ts: 1789000200, players: 239)]
+        )
+        XCTAssertNil(series.servers[1].maxPlayers)
+        XCTAssertNil(series.servers[1].change24h)
+        XCTAssertTrue(series.servers[1].points.isEmpty)
+    }
+
     func testDecodesServerDetailWithPointArrays() throws {
         let detail = try decoder.decode(ServerDetailResponse.self, from: Fixtures.data(Fixtures.server))
         XCTAssertEqual(detail.range, .day)

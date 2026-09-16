@@ -1,4 +1,5 @@
-import type { SampleRow } from "./db";
+import type { SampleRow, ServerSampleRow } from "./db";
+import type { TopEntry } from "./summaries";
 import { RANGE_SECONDS, type Range } from "./types";
 
 export type Point = [number, number];
@@ -39,4 +40,41 @@ export function peakOf(points: Point[]): { players: number; ts: number } | null 
     if (!peak || players > peak.players) peak = { players, ts };
   }
   return peak;
+}
+
+export interface TopSeriesEntry {
+  id: string;
+  name: string;
+  players: number;
+  maxPlayers: number | null;
+  change24h: number | null;
+  points: Point[];
+}
+
+export interface TopSeriesBody {
+  updatedAt: number;
+  servers: TopSeriesEntry[];
+}
+
+export function computeTopSeries(
+  top: TopEntry[],
+  samples: ServerSampleRow[],
+  ts: number,
+  limit: number,
+): TopSeriesBody {
+  const chosen = top.slice(0, limit);
+  const pointsById = new Map<string, Point[]>();
+  for (const entry of chosen) pointsById.set(entry.id, []);
+  for (const sample of samples) pointsById.get(sample.mhId)?.push([sample.ts, sample.players]);
+  return {
+    updatedAt: ts,
+    servers: chosen.map((entry) => ({
+      id: entry.id,
+      name: entry.name,
+      players: entry.players,
+      maxPlayers: entry.maxPlayers,
+      change24h: entry.change24h,
+      points: pointsById.get(entry.id) ?? [],
+    })),
+  };
 }

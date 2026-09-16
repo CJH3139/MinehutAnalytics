@@ -10,6 +10,7 @@ public enum APIError: Error, Equatable, Sendable {
 public struct APIClient: Sendable {
     public enum Endpoint: Sendable, Equatable {
         case top
+        case topSeries
         case stats
         case rising(RisingWindow)
         case server(id: String, range: GraphRange)
@@ -17,6 +18,7 @@ public struct APIClient: Sendable {
         public var cacheKey: String {
             switch self {
             case .top: return "top"
+            case .topSeries: return "top_series"
             case .stats: return "stats"
             case .rising(let window): return "rising_\(window.rawValue)"
             case .server(let id, let range): return "server_\(id)_\(range.rawValue)"
@@ -45,6 +47,8 @@ public struct APIClient: Sendable {
         switch endpoint {
         case .top:
             components.path = basePath + "/v1/top"
+        case .topSeries:
+            components.path = basePath + "/v1/top/series"
         case .stats:
             components.path = basePath + "/v1/stats"
         case .rising(let window):

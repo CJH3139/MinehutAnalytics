@@ -12,6 +12,7 @@ import {
   pruneBlobs,
   pruneSamples,
   readSummary,
+  samplesForServers,
   samplesSince,
   upsertServers,
   writeSummaries,
@@ -110,5 +111,36 @@ describe("summaries", () => {
     await writeSummaries(db, TS + 900, [{ key: "top", data: { n: 3 } }]);
     expect(await readSummary(db, "top")).toBe('{"n":3}');
     expect(await readSummary(db, "stats")).toBe('{"n":2}');
+  });
+});
+
+describe("samplesForServers", () => {
+  it("returns ascending samples for several servers inside the window", async () => {
+    const servers = [makeParsed("a", "Alpha", 3), makeParsed("b", "Beta", 5)];
+    await upsertServers(db, servers, TS);
+    await insertSamples(db, servers, TS - 900);
+    await insertSamples(db, [makeParsed("a", "Alpha", 9), makeParsed("b", "Beta", 11)], TS);
+
+    const rows = await samplesForServers(db, ["a", "b"], TS - 1800);
+    expect(rows).toEqual([
+      { mhId: "a", ts: TS - 900, players: 3 },
+      { mhId: "b", ts: TS - 900, players: 5 },
+      { mhId: "a", ts: TS, players: 9 },
+      { mhId: "b", ts: TS, players: 11 },
+    ]);
+  });
+
+  it("excludes other servers and samples at or before the cutoff", async () => {
+    const servers = [makeParsed("a", "Alpha", 3), makeParsed("z", "Zeta", 4)];
+    await upsertServers(db, servers, TS);
+    await insertSamples(db, servers, TS - 900);
+    await insertSamples(db, servers, TS);
+
+    const rows = await samplesForServers(db, ["a"], TS - 900);
+    expect(rows).toEqual([{ mhId: "a", ts: TS, players: 3 }]);
+  });
+
+  it("returns nothing for an empty id list", async () => {
+    expect(await samplesForServers(db, [], 0)).toEqual([]);
   });
 });

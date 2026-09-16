@@ -1,3 +1,4 @@
+import Charts
 import MinehutKit
 import SwiftUI
 import WidgetKit
@@ -10,6 +11,12 @@ private func statusText(_ entry: WidgetEntry) -> String {
 
 private func listURL(_ entry: WidgetEntry) -> URL {
     (entry.kind == .top ? AppRoute.top : AppRoute.rising).url
+}
+
+private let seriesPalette: [Color] = [.teal, .orange, .purple, .pink, .blue, .green, .indigo, .red]
+
+private func seriesColor(_ index: Int) -> Color {
+    seriesPalette[((index % seriesPalette.count) + seriesPalette.count) % seriesPalette.count]
 }
 
 private func deltaColor(_ text: String) -> Color {
@@ -90,14 +97,22 @@ private struct ListView: View {
     let entry: WidgetEntry
     let large: Bool
 
+    private var series: [WidgetSeries] { entry.content?.series ?? [] }
+    private var showsChart: Bool { large && entry.kind == .top && !series.isEmpty }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: large ? 7 : 4) {
+        VStack(alignment: .leading, spacing: large ? 6 : 4) {
             HeaderView(entry: entry)
             if let rows = entry.content?.rows, !rows.isEmpty {
                 ForEach(rows) { row in
                     Link(destination: AppRoute.server(id: row.id).url) {
-                        RowView(row: row, fullDelta: large)
+                        RowView(row: row, fullDelta: large, dotColor: showsChart ? seriesColor(row.rank - 1) : nil)
                     }
+                }
+                if showsChart {
+                    SeriesChart(series: series)
+                        .frame(maxHeight: .infinity)
+                        .padding(.top, 2)
                 }
             } else {
                 Text(statusText(entry)).font(.subheadline).foregroundStyle(.secondary)
@@ -108,9 +123,38 @@ private struct ListView: View {
     }
 }
 
+private struct SeriesChart: View {
+    let series: [WidgetSeries]
+
+    private var upperBound: Int {
+        Swift.max(series.flatMap(\.points).map(\.players).max() ?? 0, 1)
+    }
+
+    var body: some View {
+        Chart {
+            ForEach(series) { line in
+                ForEach(line.points) { point in
+                    LineMark(
+                        x: .value("Time", point.date),
+                        y: .value("Players", point.players),
+                        series: .value("Server", line.id)
+                    )
+                    .foregroundStyle(seriesColor(line.colorIndex))
+                    .lineStyle(StrokeStyle(lineWidth: 1.2, lineJoin: .round))
+                }
+            }
+        }
+        .chartXAxis(.hidden)
+        .chartYAxis(.hidden)
+        .chartYScale(domain: 0...upperBound)
+        .chartLegend(.hidden)
+    }
+}
+
 private struct RowView: View {
     let row: WidgetRow
     let fullDelta: Bool
+    var dotColor: Color?
 
     var body: some View {
         HStack(spacing: 6) {
@@ -118,6 +162,9 @@ private struct RowView: View {
                 .font(.caption.monospacedDigit())
                 .foregroundStyle(.secondary)
                 .frame(width: 16, alignment: .trailing)
+            if let dotColor {
+                Circle().fill(dotColor).frame(width: 6, height: 6)
+            }
             Text(row.name).font(.subheadline.weight(.medium)).lineLimit(1)
             Spacer(minLength: 4)
             Text("\(row.players)").font(.subheadline.monospacedDigit())

@@ -6,15 +6,19 @@ import {
   oldestBlobTs,
   pruneBlobs,
   pruneSamples,
+  samplesForServers,
   upsertServers,
   writeSummaries,
   type SummaryKey,
 } from "./db";
 import { MINEHUT_SERVERS_URL, parseServersResponse } from "./minehut";
+import { computeTopSeries } from "./series";
 import { blobCounts, computeRising, computeStats, computeTop, pickBlob } from "./summaries";
 import {
   BLOB_RETENTION_SECONDS,
   SAMPLE_RETENTION_SECONDS,
+  SERIES_LIMIT,
+  SERIES_SECONDS,
   SNAPSHOT_SECONDS,
   WINDOWS,
   WINDOW_SECONDS,
@@ -61,8 +65,15 @@ export async function runCollector(
 
   const blobs = await loadBlobsNear(db, WINDOWS.map((w) => ts - WINDOW_SECONDS[w]));
   const oldest = await oldestBlobTs(db);
+  const topBody = computeTop(parsed.servers, ts, pickBlob(blobs, ts - WINDOW_SECONDS["24h"]));
+  const seriesSamples = await samplesForServers(
+    db,
+    topBody.servers.slice(0, SERIES_LIMIT).map((s) => s.id),
+    ts - SERIES_SECONDS,
+  );
   const entries: { key: SummaryKey; data: unknown }[] = [
-    { key: "top", data: computeTop(parsed.servers, ts, pickBlob(blobs, ts - WINDOW_SECONDS["24h"])) },
+    { key: "top", data: topBody },
+    { key: "top_series", data: computeTopSeries(topBody.servers, seriesSamples, ts, SERIES_LIMIT) },
     { key: "stats", data: computeStats(parsed, ts) },
     ...WINDOWS.map((w) => ({
       key: `rising_${w}` as SummaryKey,

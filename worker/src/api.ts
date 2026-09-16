@@ -89,6 +89,7 @@ export async function handleRequest(request: Request, env: ApiEnv): Promise<Resp
   if (request.method !== "GET") return notFound();
 
   if (path === "/v1/top") return summary(env.DB, "top");
+  if (path === "/v1/top/series") return summary(env.DB, "top_series");
   if (path === "/v1/stats") return summary(env.DB, "stats");
   if (path === "/v1/rising") {
     const window = url.searchParams.get("window") ?? "24h";

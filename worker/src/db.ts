@@ -8,12 +8,18 @@ export interface ServerRow {
   firstSeen: number;
 }
 
+export interface ServerSampleRow {
+  mhId: string;
+  ts: number;
+  players: number;
+}
+
 export interface SampleRow {
   ts: number;
   players: number;
 }
 
-export type SummaryKey = "top" | "rising_1h" | "rising_6h" | "rising_24h" | "stats";
+export type SummaryKey = "top" | "top_series" | "rising_1h" | "rising_6h" | "rising_24h" | "stats";
 
 export async function upsertServers(db: D1Database, servers: ParsedServer[], ts: number): Promise<number> {
   if (servers.length === 0) return 0;
@@ -117,6 +123,25 @@ export async function getServer(db: D1Database, mhId: string): Promise<ServerRow
     .first<{ id: number; mh_id: string; name: string; info: string; first_seen: number }>();
   if (!row) return null;
   return { id: row.id, mhId: row.mh_id, name: row.name, info: JSON.parse(row.info) as ServerInfo, firstSeen: row.first_seen };
+}
+
+export async function samplesForServers(
+  db: D1Database,
+  mhIds: string[],
+  sinceExclusive: number,
+): Promise<ServerSampleRow[]> {
+  if (mhIds.length === 0) return [];
+  const placeholders = mhIds.map(() => "?").join(", ");
+  const { results } = await db
+    .prepare(
+      `SELECT s.mh_id AS mh_id, p.ts AS ts, p.players AS players
+       FROM samples AS p JOIN servers AS s ON s.id = p.server_id
+       WHERE s.mh_id IN (${placeholders}) AND p.ts > ?
+       ORDER BY p.ts, s.mh_id`,
+    )
+    .bind(...mhIds, sinceExclusive)
+    .all<{ mh_id: string; ts: number; players: number }>();
+  return results.map((r) => ({ mhId: r.mh_id, ts: r.ts, players: r.players }));
 }
 
 export async function samplesSince(db: D1Database, serverId: number, sinceExclusive: number): Promise<SampleRow[]> {

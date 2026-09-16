@@ -114,3 +114,31 @@ describe("scheduled handler", () => {
     expect(JSON.parse((await readSummary(db, "top"))!).servers[0].id).toBe("a");
   });
 });
+
+describe("top series summary", () => {
+  it("records a line per top server across runs", async () => {
+    const first = makeRawResponse([
+      { id: "a", name: "Alpha", players: 40, maxPlayers: 100 },
+      { id: "b", name: "Beta", players: 12 },
+    ]);
+    const later = makeRawResponse([
+      { id: "a", name: "Alpha", players: 55, maxPlayers: 100 },
+      { id: "b", name: "Beta", players: 9 },
+    ]);
+    await runCollector(db, ms(TS), fakeFetch(first));
+    await runCollector(db, ms(TS + 900), fakeFetch(later));
+
+    const body = JSON.parse((await readSummary(db, "top_series"))!);
+    expect(body.updatedAt).toBe(TS + 900);
+    expect(body.servers.map((s: { id: string }) => s.id)).toEqual(["a", "b"]);
+    expect(body.servers[0]).toMatchObject({ name: "Alpha", players: 55, maxPlayers: 100 });
+    expect(body.servers[0].points).toEqual([
+      [TS, 40],
+      [TS + 900, 55],
+    ]);
+    expect(body.servers[1].points).toEqual([
+      [TS, 12],
+      [TS + 900, 9],
+    ]);
+  });
+});

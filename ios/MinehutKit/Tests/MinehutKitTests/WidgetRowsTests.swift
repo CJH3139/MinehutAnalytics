@@ -47,6 +47,37 @@ final class WidgetRowsTests: XCTestCase {
         XCTAssertEqual(content.inlineText, "#1 TechMines 239")
     }
 
+    func testTopSeriesRowsAndLines() throws {
+        let response = try decoder.decode(TopSeriesResponse.self, from: Fixtures.data(Fixtures.topSeries))
+        let content = WidgetContent.topSeries(response, limit: 8)
+        XCTAssertEqual(content.kind, .top)
+        XCTAssertTrue(content.ready)
+        XCTAssertEqual(content.rows, [
+            WidgetRow(id: "aaa", rank: 1, name: "TechMines", players: 239, delta: "+45", shortDelta: "+45"),
+            WidgetRow(id: "bbb", rank: 2, name: "MineRefine", players: 118, delta: "", shortDelta: ""),
+        ])
+        XCTAssertEqual(content.series.map(\.id), ["aaa", "bbb"])
+        XCTAssertEqual(content.series.map(\.colorIndex), [0, 1])
+        XCTAssertEqual(
+            content.series[0].points,
+            [GraphPoint(ts: 1788999300, players: 230), GraphPoint(ts: 1789000200, players: 239)]
+        )
+        XCTAssertTrue(content.series[1].points.isEmpty)
+        XCTAssertEqual(content.inlineText, "#1 TechMines 239")
+    }
+
+    func testTopSeriesRespectsLimit() throws {
+        let response = try decoder.decode(TopSeriesResponse.self, from: Fixtures.data(Fixtures.topSeries))
+        let content = WidgetContent.topSeries(response, limit: 1)
+        XCTAssertEqual(content.rows.map(\.id), ["aaa"])
+        XCTAssertEqual(content.series.map(\.id), ["aaa"])
+    }
+
+    func testPlainTopCarriesNoSeries() throws {
+        let top = try decoder.decode(TopResponse.self, from: Fixtures.data(Fixtures.top))
+        XCTAssertTrue(WidgetContent.top(top, limit: 4).series.isEmpty)
+    }
+
     func testTopEmpty() {
         XCTAssertEqual(WidgetContent.top(TopResponse(updatedAt: 1, servers: []), limit: 4).inlineText, "No servers online")
     }

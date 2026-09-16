@@ -94,6 +94,34 @@ public struct StatsResponse: Codable, Equatable, Sendable {
     }
 }
 
+public struct TopSeriesServer: Codable, Equatable, Sendable, Identifiable {
+    public let id: String
+    public let name: String
+    public let players: Int
+    public let maxPlayers: Int?
+    public let change24h: Int?
+    public let points: [GraphPoint]
+
+    public init(id: String, name: String, players: Int, maxPlayers: Int?, change24h: Int?, points: [GraphPoint]) {
+        self.id = id
+        self.name = name
+        self.players = players
+        self.maxPlayers = maxPlayers
+        self.change24h = change24h
+        self.points = points
+    }
+}
+
+public struct TopSeriesResponse: Codable, Equatable, Sendable {
+    public let updatedAt: Int
+    public let servers: [TopSeriesServer]
+
+    public init(updatedAt: Int, servers: [TopSeriesServer]) {
+        self.updatedAt = updatedAt
+        self.servers = servers
+    }
+}
+
 public struct GraphPoint: Codable, Equatable, Sendable, Identifiable {
     public let ts: Int
     public let players: Int

@@ -92,6 +92,9 @@ struct Provider: AppIntentTimelineProvider {
         case .rising:
             let result = await loader.load(RisingResponse.self, .rising(configuration.window.risingWindow))
             return WidgetEntry(kind: kind, result: result, limit: limit, map: WidgetContent.rising(_:limit:))
+        case .top where family == .systemLarge:
+            let result = await loader.load(TopSeriesResponse.self, .topSeries)
+            return WidgetEntry(kind: kind, result: result, limit: limit, map: WidgetContent.topSeries(_:limit:))
         case .top:
             let result = await loader.load(TopResponse.self, .top)
             return WidgetEntry(kind: kind, result: result, limit: limit, map: WidgetContent.top(_:limit:))

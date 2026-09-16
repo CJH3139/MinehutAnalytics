@@ -38,3 +38,5 @@ export const MIN_RISING_PLAYERS = 5;
 export const LIST_LIMIT = 50;
 export const BLOB_RETENTION_SECONDS = 90000;
 export const SAMPLE_RETENTION_SECONDS = 2592000;
+export const SERIES_LIMIT = 8;
+export const SERIES_SECONDS = 86400;

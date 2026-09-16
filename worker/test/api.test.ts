@@ -171,3 +171,23 @@ describe("collect endpoint", () => {
     expect((await get("/v1/collect")).status).toBe(404);
   });
 });
+
+describe("top series endpoint", () => {
+  it("returns 503 before the collector has run", async () => {
+    const res = await get("/v1/top/series");
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "no_data" });
+  });
+
+  it("returns the stored JSON with a cache header", async () => {
+    await writeSummaries(db, TS, [{ key: "top_series", data: { which: "series" } }]);
+    const res = await get("/v1/top/series");
+    expect(res.status).toBe(200);
+    expect(res.headers.get("cache-control")).toBe("public, max-age=300");
+    expect(await res.json()).toEqual({ which: "series" });
+  });
+
+  it("is GET only", async () => {
+    expect((await get("/v1/top/series", "POST")).status).toBe(404);
+  });
+});

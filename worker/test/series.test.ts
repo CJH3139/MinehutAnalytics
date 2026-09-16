@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildPoints, peakOf } from "../src/series";
+import { buildPoints, computeTopSeries, peakOf } from "../src/series";
 
 const TS = 1_789_000_200;
 const HOUR_OF_TS = TS - 1800;
@@ -58,5 +58,48 @@ describe("peakOf", () => {
 
   it("returns null for no points", () => {
     expect(peakOf([])).toBeNull();
+  });
+});
+
+describe("computeTopSeries", () => {
+  const top = Array.from({ length: 10 }, (_, i) => ({
+    id: `s${i}`,
+    name: `S${i}`,
+    players: 100 - i,
+    maxPlayers: i === 0 ? null : 500,
+    change24h: i === 0 ? null : i,
+  }));
+
+  it("keeps the top servers in rank order with their points", () => {
+    const samples = [
+      { mhId: "s1", ts: 100, players: 40 },
+      { mhId: "s0", ts: 100, players: 90 },
+      { mhId: "s0", ts: 1000, players: 99 },
+    ];
+    const body = computeTopSeries(top, samples, 2000, 8);
+    expect(body.updatedAt).toBe(2000);
+    expect(body.servers).toHaveLength(8);
+    expect(body.servers.map((s) => s.id)).toEqual(["s0", "s1", "s2", "s3", "s4", "s5", "s6", "s7"]);
+    expect(body.servers[0]).toEqual({
+      id: "s0",
+      name: "S0",
+      players: 100,
+      maxPlayers: null,
+      change24h: null,
+      points: [
+        [100, 90],
+        [1000, 99],
+      ],
+    });
+    expect(body.servers[1].points).toEqual([[100, 40]]);
+  });
+
+  it("gives a server with no samples an empty line", () => {
+    expect(computeTopSeries(top, [], 2000, 8).servers[3].points).toEqual([]);
+  });
+
+  it("ignores samples for servers outside the limit", () => {
+    const body = computeTopSeries(top, [{ mhId: "s9", ts: 100, players: 1 }], 2000, 8);
+    expect(body.servers.every((s) => s.points.length === 0)).toBe(true);
   });
 });
