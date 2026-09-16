@@ -46,6 +46,7 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/ipa/Payload"
           cp -R "$RUNNER_TEMP/MinehutAnalytics.xcarchive/Products/Applications/MinehutAnalytics.app" "$RUNNER_TEMP/ipa/Payload/"
+          test -d "$RUNNER_TEMP/ipa/Payload/MinehutAnalytics.app/PlugIns/MinehutAnalyticsWidget.appex"
           cd "$RUNNER_TEMP/ipa"
           zip -qry MinehutAnalytics.ipa Payload
       - name: Upload IPA
