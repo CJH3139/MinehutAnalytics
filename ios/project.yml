@@ -1,0 +1,46 @@
+name: MinehutAnalytics
+
+options:
+  bundleIdPrefix: com.cjh3139
+  deploymentTarget:
+    iOS: "18.0"
+  createIntermediateGroups: true
+
+packages:
+  MinehutKit:
+    path: MinehutKit
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    WORKER_BASE_URL: "https://minehut-analytics.imnotnotcjh.workers.dev"
+
+targets:
+  MinehutAnalytics:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+    dependencies:
+      - package: MinehutKit
+    scheme: {}
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: Minehut Analytics
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        CFBundleURLTypes:
+          - CFBundleURLName: com.cjh3139.minehutanalytics
+            CFBundleURLSchemes: [minehutanalytics]
+        WorkerBaseURL: $(WORKER_BASE_URL)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.cjh3139.minehutanalytics
+        TARGETED_DEVICE_FAMILY: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
