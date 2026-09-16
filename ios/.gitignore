@@ -1,0 +1,9 @@
+*.xcodeproj/
+.build/
+.swiftpm/
+DerivedData/
+build/
+*.ipa
+Payload/
+App/Info.plist
+Widget/Info.plist
