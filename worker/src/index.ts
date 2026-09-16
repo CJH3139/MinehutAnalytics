@@ -7,6 +7,6 @@ export default {
   },
   async scheduled(controller, env): Promise<void> {
     const result = await runCollector(env.DB, controller.scheduledTime);
-    if (result !== "ok") console.error(`collector result: ${result}`);
+    if (result === "fetch_failed") console.error(`collector result: ${result}`);
   },
 } satisfies ExportedHandler<Env>;

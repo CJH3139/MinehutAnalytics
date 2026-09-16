@@ -61,6 +61,15 @@ describe("runCollector", () => {
     ]);
   });
 
+  it("skips a snapshot that already exists without fetching Minehut", async () => {
+    await runCollector(db, ms(TS), fakeFetch(first));
+    const before = await readSummary(db, "top");
+    const spy = vi.fn(fakeFetch(first));
+    expect(await runCollector(db, ms(TS) + 60_000, spy as unknown as typeof fetch)).toBe("skipped");
+    expect(spy).not.toHaveBeenCalled();
+    expect(await readSummary(db, "top")).toBe(before);
+  });
+
   it("leaves summaries untouched when Minehut returns an error", async () => {
     await runCollector(db, ms(TS), fakeFetch(first));
     const before = await readSummary(db, "top");

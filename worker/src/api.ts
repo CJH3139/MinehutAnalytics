@@ -77,7 +77,7 @@ async function collect(request: Request, env: ApiEnv): Promise<Response> {
   if (!hasCollectSecret(request, env.COLLECT_SECRET)) return unauthorized();
   const now = Date.now();
   const result = await runCollector(env.DB, now);
-  if (result !== "ok") return respond(`{"error":"${result}"}`, 502);
+  if (result === "fetch_failed") return respond('{"error":"fetch_failed"}', 502);
   return respond(JSON.stringify({ result, ts: snapshotTs(now) }), 200, false);
 }
 

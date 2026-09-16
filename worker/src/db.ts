@@ -53,6 +53,11 @@ export async function insertBlob(db: D1Database, blob: Blob): Promise<void> {
     .run();
 }
 
+export async function blobExists(db: D1Database, ts: number): Promise<boolean> {
+  const row = await db.prepare("SELECT 1 AS found FROM snapshot_blobs WHERE ts = ?1").bind(ts).first<{ found: number }>();
+  return row !== null;
+}
+
 export async function loadBlobsNear(db: D1Database, targets: number[]): Promise<Blob[]> {
   if (targets.length === 0) return [];
   const clauses = targets.map(() => "ts BETWEEN ? AND ?").join(" OR ");

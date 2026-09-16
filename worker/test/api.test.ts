@@ -145,6 +145,15 @@ describe("collect endpoint", () => {
     expect(JSON.parse((await readSummary(db, "top"))!).servers[0].id).toBe("a");
   });
 
+  it("reports a skipped run when the slot is already recorded", async () => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(fakeFetch(makeRawResponse([{ id: "a", name: "Alpha", players: 12 }])));
+    const first = await post("test-collect-secret");
+    const firstBody = await first.json<{ ts: number }>();
+    const second = await post("test-collect-secret");
+    expect(second.status).toBe(200);
+    expect(await second.json()).toEqual({ result: "skipped", ts: firstBody.ts });
+  });
+
   it("returns 502 when Minehut cannot be fetched", async () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(globalThis, "fetch").mockImplementation(fakeFetch({ message: "down" }, 500));

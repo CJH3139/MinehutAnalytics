@@ -1,6 +1,7 @@
 import { env } from "cloudflare:workers";
 import { beforeEach, describe, expect, it } from "vitest";
 import {
+  blobExists,
   blobTimesSince,
   getServer,
   insertBlob,
@@ -81,6 +82,13 @@ describe("snapshot blobs", () => {
     const loaded = await loadBlobsNear(db, [TS - 3600, TS - 21600, TS - 86400]);
     expect(loaded.map((b) => b.ts).sort((x, y) => x - y)).toEqual([TS - 86400, TS - 3600 - 900]);
     expect(loaded[0].counts).toEqual({ a: 1 });
+  });
+
+  it("reports whether a snapshot already exists", async () => {
+    expect(await blobExists(db, TS)).toBe(false);
+    await insertBlob(db, { ts: TS, counts: { a: 1 } });
+    expect(await blobExists(db, TS)).toBe(true);
+    expect(await blobExists(db, TS + 900)).toBe(false);
   });
 
   it("reports oldest, latest, and times since; prunes old blobs", async () => {

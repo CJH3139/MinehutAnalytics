@@ -1,4 +1,5 @@
 import {
+  blobExists,
   insertBlob,
   insertSamples,
   loadBlobsNear,
@@ -20,7 +21,7 @@ import {
   type ParsedResponse,
 } from "./types";
 
-export type CollectorResult = "ok" | "fetch_failed";
+export type CollectorResult = "ok" | "skipped" | "fetch_failed";
 
 const USER_AGENT = "MinehutAnalytics/1.0 (+https://github.com/CJH3139/MinehutAnalytics)";
 
@@ -50,6 +51,7 @@ export async function runCollector(
   fetchFn: typeof fetch = fetch,
 ): Promise<CollectorResult> {
   const ts = snapshotTs(scheduledTimeMs);
+  if (await blobExists(db, ts)) return "skipped";
   const parsed = await fetchMinehut(fetchFn);
   if (!parsed) return "fetch_failed";
 
