@@ -1,0 +1,25 @@
+name: Collect Minehut snapshot
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger collector
+        env:
+          COLLECT_SECRET: ${{ secrets.COLLECT_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 \
+            --retry 2 --retry-delay 15 --retry-all-errors \
+            -X POST \
+            -H "Authorization: Bearer $COLLECT_SECRET" \
+            https://minehut-analytics.imnotnotcjh.workers.dev/v1/collect

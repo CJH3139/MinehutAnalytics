@@ -1,3 +1,5 @@
+import type { ParsedServer } from "../src/types";
+
 export async function resetDb(db: D1Database): Promise<void> {
   await db.batch([
     db.prepare("DELETE FROM samples"),
@@ -44,4 +46,18 @@ export function makeRawResponse(
     total_servers: totals?.servers ?? servers.length,
     total_search_results: servers.length,
   };
+}
+
+export function makeParsed(id: string, name: string, players: number, maxPlayers: number | null = 20): ParsedServer {
+  return {
+    mhId: id,
+    name,
+    players,
+    info: { motd: "", categories: [], maxPlayers, author: null, icon: null, plan: null },
+  };
+}
+
+export function fakeFetch(body: unknown, status = 200): typeof fetch {
+  return (async () =>
+    new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } })) as unknown as typeof fetch;
 }

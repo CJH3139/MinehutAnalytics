@@ -8,7 +8,7 @@
     {
       "binding": "DB",
       "database_name": "minehut-analytics",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "7e98cdb8-a51c-442c-b394-af8f01d62731",
       "migrations_dir": "migrations"
     }
   ],
