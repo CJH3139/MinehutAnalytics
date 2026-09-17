@@ -56,6 +56,7 @@ async function serverDetail(db: D1Database, mhId: string, rangeParam: string): P
       motd: server.info.motd,
       categories: server.info.categories,
       author: server.info.author,
+      icon: server.info.icon,
       firstSeen: server.firstSeen,
     },
     range,

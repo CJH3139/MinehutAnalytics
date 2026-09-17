@@ -7,7 +7,6 @@ struct WatchlistView: View {
     var body: some View {
         List {
             Section {
-                Text("Your corner of Minehut.").font(.title2.bold())
                 Text("Saved on this device. Save servers from rankings or their detail page.").foregroundStyle(.secondary)
             }.listRowBackground(Color.clear)
             if favorites.collection.servers.isEmpty {
@@ -19,7 +18,7 @@ struct WatchlistView: View {
                         let current = top.value?.servers.first { $0.id == saved.id }
                         NavigationLink(value: saved.id) {
                             HStack(spacing: 12) {
-                                LetterBadge(name: saved.name)
+                                ServerAvatar(icon: current?.icon ?? saved.icon, serverID: saved.id)
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(current?.name ?? saved.name).font(.headline)
                                     Text(current.map { "\($0.players.formatted()) players in latest listing" } ?? "Open to check activity").font(.caption).foregroundStyle(.secondary)

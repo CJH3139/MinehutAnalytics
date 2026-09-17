@@ -15,7 +15,7 @@ struct ServerDetailView: View {
                 let server = detail.server
                 Section {
                     HStack(spacing: 16) {
-                        LetterBadge(name: server.name, size: 60)
+                        ServerAvatar(icon: server.icon, size: 60)
                         VStack(alignment: .leading, spacing: 5) {
                             Text(server.name).font(.system(.title2, design: .rounded, weight: .bold))
                             Text("\(Formatters.players(server.players, max: server.maxPlayers)) players").foregroundStyle(AnalyticsTheme.mint).monospacedDigit()
@@ -26,7 +26,7 @@ struct ServerDetailView: View {
                         Spacer()
                         Button(copied ? "Copied" : "Copy") { UIPasteboard.general.string = server.ip; copied = true }.buttonStyle(.bordered)
                     }
-                    FavoriteButton(id: server.id, name: server.name)
+                    FavoriteButton(id: server.id, name: server.name, icon: server.icon)
                     if !server.categories.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {

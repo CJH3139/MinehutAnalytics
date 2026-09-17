@@ -12,6 +12,7 @@ import {
 export interface RisingEntry {
   id: string;
   name: string;
+  icon: string | null;
   players: number;
   then: number;
   gain: number;
@@ -30,6 +31,7 @@ export interface RisingBody {
 export interface TopEntry {
   id: string;
   name: string;
+  icon: string | null;
   players: number;
   maxPlayers: number | null;
   change24h: number | null;
@@ -98,7 +100,7 @@ export function computeRising(
     const gain = s.players - then;
     if (gain < 1) continue;
     const pct = then === 0 ? null : Math.round((gain / then) * 1000) / 10;
-    entries.push({ id: s.mhId, name: s.name, players: s.players, then, gain, pct });
+    entries.push({ id: s.mhId, name: s.name, icon: s.info.icon, players: s.players, then, gain, pct });
   }
   entries.sort((a, b) => b.gain - a.gain || comparePctDesc(a.pct, b.pct) || compareName(a, b));
   return { updatedAt: ts, window, ready: true, readyAt: null, comparedTo: blob.ts, servers: entries.slice(0, LIST_LIMIT) };
@@ -111,6 +113,7 @@ export function computeTop(servers: ParsedServer[], ts: number, blob24h: Blob | 
     servers: top.map((s) => ({
       id: s.mhId,
       name: s.name,
+      icon: s.info.icon,
       players: s.players,
       maxPlayers: s.info.maxPlayers,
       change24h: blob24h ? s.players - (blob24h.counts[s.mhId] ?? 0) : null,

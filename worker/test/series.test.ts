@@ -63,6 +63,7 @@ describe("computeTopSeries", () => {
   const top = Array.from({ length: 10 }, (_, i) => ({
     id: `s${i}`,
     name: `S${i}`,
+    icon: null,
     players: 100 - i,
     maxPlayers: i === 0 ? null : 500,
     change24h: i === 0 ? null : i,

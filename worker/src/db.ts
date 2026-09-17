@@ -19,7 +19,7 @@ export interface SampleRow {
   players: number;
 }
 
-export type SummaryKey = "top" | "top_series" | "rising_1h" | "rising_6h" | "rising_24h" | "stats";
+export type SummaryKey = "top" | "top_series" | "rising_1h" | "rising_6h" | "rising_24h" | "rising_12h" | "rising_7d" | "stats";
 
 export async function upsertServers(db: D1Database, servers: ParsedServer[], ts: number): Promise<number> {
   if (servers.length === 0) return 0;

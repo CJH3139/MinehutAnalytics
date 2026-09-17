@@ -99,7 +99,7 @@ struct CompareView: View {
     private func comparisonSection(_ response: ServerDetailResponse, points: [GraphPoint], color: Color, offline: Bool) -> some View {
         let stats = ObservationStatistics(points: points)
         return Section {
-            Text(response.server.name).font(.headline).foregroundStyle(color)
+            HStack { ServerAvatar(icon: response.server.icon); Text(response.server.name).font(.headline).foregroundStyle(color) }
             LabeledContent("Latest players", value: response.server.players.formatted())
             LabeledContent("Shared-period peak", value: stats.peak.map { $0.formatted() } ?? "Unavailable")
             LabeledContent(range == .day ? "Shared-period observed mean" : "Shared-period mean hourly peak", value: stats.mean.map { $0.formatted(.number.precision(.fractionLength(1))) } ?? "Unavailable")

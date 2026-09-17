@@ -83,6 +83,7 @@ describe("server detail", () => {
         motd: "TechMines motd",
         categories: ["smp"],
         author: "someone",
+        icon: "GRASS_BLOCK",
         firstSeen: TS,
       },
       range: "24h",

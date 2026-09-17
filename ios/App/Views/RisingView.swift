@@ -8,16 +8,14 @@ struct RisingView: View {
     var body: some View {
         List {
             Section {
-                Text("Catch the next wave.").font(.title2.bold())
-                Text("Communities gaining players over your selected window.").foregroundStyle(.secondary)
                 Picker("Growth window", selection: $window) {
-                    ForEach(RisingWindow.allCases) { Text($0.rawValue).tag($0) }
+                    ForEach(RisingWindow.appWindows) { Text($0.title).tag($0) }
                 }.pickerStyle(.segmented)
             }.listRowBackground(Color.clear)
             if let response = model.value {
                 Section {
                     if !response.ready {
-                        ContentUnavailableView("Building a baseline", systemImage: "clock", description: Text(response.readyAt.map { "Ready around \(Formatters.clockTime($0))." } ?? "More observations are needed to measure growth."))
+                        ContentUnavailableView("Building a baseline", systemImage: "clock", description: Text(response.readyAt.map { "Ready around \(unixDate($0).formatted(date: .abbreviated, time: .shortened))." } ?? "More observations are needed to measure growth."))
                     } else {
                         let matches = Array(response.servers.enumerated()).filter { search.isEmpty || $0.element.name.localizedCaseInsensitiveContains(search) }
                         if matches.isEmpty {
@@ -25,8 +23,8 @@ struct RisingView: View {
                         }
                         ForEach(matches, id: \.element.id) { index, server in
                             NavigationLink(value: server.id) {
-                                ServerRowView(rank: index + 1, name: server.name, subtitle: "\(server.players.formatted()) players", trailing: Formatters.gain(server.gain, pct: server.pct), trailingColor: AnalyticsTheme.mint)
-                            }.swipeActions { FavoriteButton(id: server.id, name: server.name) }
+                                ServerRowView(rank: index + 1, name: server.name, icon: server.icon, subtitle: "\(server.players.formatted()) players", trailing: Formatters.gain(server.gain, pct: server.pct), trailingColor: AnalyticsTheme.mint)
+                            }.swipeActions { FavoriteButton(id: server.id, name: server.name, icon: server.icon) }
                         }
                     }
                 } header: { UpdatedHeader(updatedAt: response.updatedAt, isOffline: model.isOffline, isLoading: model.isLoading) }.listRowBackground(AnalyticsTheme.surface)

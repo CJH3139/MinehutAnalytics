@@ -63,14 +63,15 @@ public struct ComparisonObservations: Sendable {
 public struct FavoriteServer: Codable, Equatable, Sendable, Identifiable {
     public let id: String
     public let name: String
+    public let icon: String?
 }
 
 public struct FavoriteCollection: Codable, Equatable, Sendable {
     public private(set) var servers: [FavoriteServer] = []
     public init() {}
     public func contains(_ id: String) -> Bool { servers.contains { $0.id == id } }
-    public mutating func toggle(id: String, name: String) {
+    public mutating func toggle(id: String, name: String, icon: String? = nil) {
         if contains(id) { servers.removeAll { $0.id == id } }
-        else { servers.append(FavoriteServer(id: id, name: name)) }
+        else { servers.append(FavoriteServer(id: id, name: name, icon: icon)) }
     }
 }

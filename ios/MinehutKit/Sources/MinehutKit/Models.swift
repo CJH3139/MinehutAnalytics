@@ -7,8 +7,12 @@ public func unixDate(_ ts: Int) -> Date {
 public enum RisingWindow: String, CaseIterable, Codable, Sendable, Identifiable {
     case oneHour = "1h"
     case sixHours = "6h"
+    case twelveHours = "12h"
+    case week = "7d"
     case day = "24h"
 
+    public static let appWindows: [RisingWindow] = [.twelveHours, .day, .week]
+    public var title: String { self == .week ? "1 week" : rawValue }
     public var id: String { rawValue }
 }
 
@@ -23,13 +27,15 @@ public enum GraphRange: String, CaseIterable, Codable, Sendable, Identifiable {
 public struct TopServer: Codable, Equatable, Sendable, Identifiable {
     public let id: String
     public let name: String
+    public let icon: String?
     public let players: Int
     public let maxPlayers: Int?
     public let change24h: Int?
 
-    public init(id: String, name: String, players: Int, maxPlayers: Int?, change24h: Int?) {
+    public init(id: String, name: String, players: Int, maxPlayers: Int?, change24h: Int?, icon: String? = nil) {
         self.id = id
         self.name = name
+        self.icon = icon
         self.players = players
         self.maxPlayers = maxPlayers
         self.change24h = change24h
@@ -49,14 +55,16 @@ public struct TopResponse: Codable, Equatable, Sendable {
 public struct RisingServer: Codable, Equatable, Sendable, Identifiable {
     public let id: String
     public let name: String
+    public let icon: String?
     public let players: Int
     public let then: Int
     public let gain: Int
     public let pct: Double?
 
-    public init(id: String, name: String, players: Int, then: Int, gain: Int, pct: Double?) {
+    public init(id: String, name: String, players: Int, then: Int, gain: Int, pct: Double?, icon: String? = nil) {
         self.id = id
         self.name = name
+        self.icon = icon
         self.players = players
         self.then = then
         self.gain = gain
@@ -160,6 +168,7 @@ public struct Peak: Codable, Equatable, Sendable {
 public struct ServerDetail: Codable, Equatable, Sendable, Identifiable {
     public let id: String
     public let name: String
+    public let icon: String?
     public let ip: String
     public let players: Int
     public let maxPlayers: Int?
@@ -168,9 +177,10 @@ public struct ServerDetail: Codable, Equatable, Sendable, Identifiable {
     public let author: String?
     public let firstSeen: Int
 
-    public init(id: String, name: String, ip: String, players: Int, maxPlayers: Int?, motd: String, categories: [String], author: String?, firstSeen: Int) {
+    public init(id: String, name: String, ip: String, players: Int, maxPlayers: Int?, motd: String, categories: [String], author: String?, firstSeen: Int, icon: String? = nil) {
         self.id = id
         self.name = name
+        self.icon = icon
         self.ip = ip
         self.players = players
         self.maxPlayers = maxPlayers

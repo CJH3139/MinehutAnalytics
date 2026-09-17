@@ -59,7 +59,7 @@ describe("computeRising", () => {
     const body = computeRising([makeParsed("a", "A", 12)], TS, "1h", { ts: TS - 3600, counts: {} }, TS - 3600);
     expect(body.ready).toBe(true);
     expect(body.comparedTo).toBe(TS - 3600);
-    expect(body.servers).toEqual([{ id: "a", name: "A", players: 12, then: 0, gain: 12, pct: null }]);
+    expect(body.servers).toEqual([{ id: "a", name: "A", icon: null, players: 12, then: 0, gain: 12, pct: null }]);
   });
 
   it("drops servers under 5 players now or without a gain", () => {
@@ -102,9 +102,9 @@ describe("computeTop", () => {
     expect(body).toEqual({
       updatedAt: TS,
       servers: [
-        { id: "b", name: "Beta", players: 30, maxPlayers: null, change24h: null },
-        { id: "a", name: "Alpha", players: 10, maxPlayers: 50, change24h: null },
-        { id: "c", name: "Charlie", players: 10, maxPlayers: 20, change24h: null },
+        { id: "b", name: "Beta", icon: null, players: 30, maxPlayers: null, change24h: null },
+        { id: "a", name: "Alpha", icon: null, players: 10, maxPlayers: 50, change24h: null },
+        { id: "c", name: "Charlie", icon: null, players: 10, maxPlayers: 20, change24h: null },
       ],
     });
   });

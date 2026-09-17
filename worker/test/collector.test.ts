@@ -41,7 +41,7 @@ describe("runCollector", () => {
     const rising = JSON.parse((await readSummary(db, "rising_1h"))!);
     expect(rising).toMatchObject({ updatedAt: TS, ready: false, readyAt: TS + 3600 });
     const top = JSON.parse((await readSummary(db, "top"))!);
-    expect(top.servers[0]).toEqual({ id: "a", name: "Alpha", players: 40, maxPlayers: 20, change24h: null });
+    expect(top.servers[0]).toEqual({ id: "a", name: "Alpha", icon: "GRASS_BLOCK", players: 40, maxPlayers: 20, change24h: null });
     expect(JSON.parse((await readSummary(db, "stats"))!)).toEqual({ updatedAt: TS, totalPlayers: 2000, totalServers: 900 });
   });
 
@@ -80,11 +80,11 @@ describe("runCollector", () => {
     expect(await oldestBlobTs(db)).toBe(TS);
   });
 
-  it("prunes blobs older than 25 hours", async () => {
-    await insertBlob(db, { ts: TS - 90001, counts: {} });
-    await insertBlob(db, { ts: TS - 90000, counts: {} });
+  it("prunes blobs older than a week plus one hour", async () => {
+    await insertBlob(db, { ts: TS - 608401, counts: {} });
+    await insertBlob(db, { ts: TS - 608400, counts: {} });
     await runCollector(db, ms(TS), fakeFetch(first));
-    expect(await oldestBlobTs(db)).toBe(TS - 90000);
+    expect(await oldestBlobTs(db)).toBe(TS - 608400);
   });
 
   it("prunes samples older than 30 days only on the midnight run", async () => {

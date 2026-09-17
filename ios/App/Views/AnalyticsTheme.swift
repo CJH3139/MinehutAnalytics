@@ -47,8 +47,9 @@ struct FavoriteButton: View {
     @Environment(FavoritesModel.self) private var favorites
     let id: String
     let name: String
+    var icon: String? = nil
     var body: some View {
-        Button { favorites.toggle(id: id, name: name) } label: {
+        Button { favorites.toggle(id: id, name: name, icon: icon) } label: {
             Label(favorites.collection.contains(id) ? "Remove from Watchlist" : "Save to Watchlist", systemImage: favorites.collection.contains(id) ? "star.fill" : "star")
         }.tint(AnalyticsTheme.mint)
     }

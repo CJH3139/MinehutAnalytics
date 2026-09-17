@@ -14,8 +14,8 @@ final class FavoritesModel {
             .flatMap { try? JSONDecoder().decode(FavoriteCollection.self, from: $0) } ?? FavoriteCollection()
     }
 
-    func toggle(id: String, name: String) {
-        collection.toggle(id: id, name: name)
+    func toggle(id: String, name: String, icon: String? = nil) {
+        collection.toggle(id: id, name: name, icon: icon)
         if let data = try? JSONEncoder().encode(collection) { defaults.set(data, forKey: Self.key) }
     }
 }

@@ -12,15 +12,12 @@ struct MinehutAnalyticsApp: App {
 }
 
 struct RootView: View {
-    enum Tab: Hashable { case overview, rising, top, watchlist }
-    @State private var tab: Tab = .overview
+    enum Tab: Hashable { case rising, top, watchlist }
+    @State private var tab: Tab = .rising
     @State private var risingPath: [String] = []
     @State private var topPath: [String] = []
     var body: some View {
         TabView(selection: $tab) {
-            NavigationStack {
-                OverviewView().navigationDestination(for: String.self) { ServerDetailView(id: $0) }
-            }.tabItem { Label("Overview", systemImage: "square.grid.2x2") }.tag(Tab.overview)
             NavigationStack(path: $risingPath) {
                 RisingView().navigationDestination(for: String.self) { ServerDetailView(id: $0) }
             }.tabItem { Label("Rising", systemImage: "chart.line.uptrend.xyaxis") }.tag(Tab.rising)
