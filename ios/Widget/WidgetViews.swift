@@ -119,7 +119,7 @@ private struct SmallView: View {
                 Spacer(minLength: 0)
                 Text(row.name).font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
                 Text(WidgetFormatters.count(row.players))
-                    .font(.system(size: 38, weight: .bold, design: .rounded))
+                    .font(.system(size: 38, weight: .bold))
                     .monospacedDigit().lineLimit(1).minimumScaleFactor(0.65)
                     .foregroundStyle(WidgetTheme.cyan)
                     .accessibilityLabel("\(row.players) players")
@@ -152,15 +152,9 @@ private struct RankingsView: View {
             HeaderView(entry: entry)
             if rows.isEmpty { EmptyView(entry: entry) }
             else {
-                HStack {
-                    Text("SERVER")
-                    Spacer()
-                    Text("PLAYERS  /  CHANGE")
-                }
-                .font(.system(size: 8, weight: .semibold)).tracking(0.8).foregroundStyle(.secondary)
                 ForEach(rows) { row in
                     Link(destination: AppRoute.server(id: row.id).url) {
-                        RowView(row: row, dotColor: showsChart ? series.first(where: { $0.id == row.id }).map { WidgetTheme.series($0.colorIndex) } : nil)
+                        RowView(row: row, rankColor: showsChart ? series.first(where: { $0.id == row.id }).map { WidgetTheme.series($0.colorIndex) } : nil)
                     }
                 }
                 if showsChart {
@@ -226,18 +220,17 @@ private struct SeriesChart: View {
 
 private struct RowView: View {
     let row: WidgetRow
-    let dotColor: Color?
+    let rankColor: Color?
     var body: some View {
         HStack(spacing: 7) {
             Text(String(format: "%02d", row.rank))
-                .font(.system(size: 10, weight: .bold, design: .monospaced))
-                .foregroundStyle(dotColor ?? WidgetTheme.cyan).frame(width: 18)
-            if let dotColor { Circle().fill(dotColor).frame(width: 5, height: 5) }
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(rankColor ?? WidgetTheme.cyan).frame(width: 18)
             Text(row.name).font(.system(size: 12, weight: .semibold)).lineLimit(1)
             Spacer(minLength: 2)
-            Text(WidgetFormatters.count(row.players)).font(.system(size: 13, weight: .bold, design: .rounded)).monospacedDigit()
+            Text(WidgetFormatters.count(row.players)).font(.system(size: 13, weight: .bold)).monospacedDigit()
             Text(row.shortDelta.isEmpty ? "·" : row.shortDelta)
-                .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                .font(.system(size: 10, weight: .semibold))
                 .foregroundStyle(WidgetTheme.delta(row.shortDelta)).frame(minWidth: 32, alignment: .trailing)
         }
         .accessibilityElement(children: .ignore)
