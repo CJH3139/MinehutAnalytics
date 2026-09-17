@@ -20,12 +20,10 @@ describe("buildPoints 24h", () => {
 });
 
 describe("buildPoints 7d and 30d", () => {
-  it("returns 168 hourly points for 7d and 720 for 30d when first seen long ago", () => {
+  it("returns no invented points for either range without per-server observations", () => {
     const week = buildPoints("7d", TS, [], [], 0);
-    expect(week).toHaveLength(168);
-    expect(week[167]).toEqual([HOUR_OF_TS, 0]);
-    expect(week[0][0]).toBe(HOUR_OF_TS - 167 * 3600);
-    expect(buildPoints("30d", TS, [], [], 0)).toHaveLength(720);
+    expect(week).toHaveLength(0);
+    expect(buildPoints("30d", TS, [], [], 0)).toHaveLength(0);
   });
 
   it("uses the max sample within each hour", () => {
@@ -35,13 +33,13 @@ describe("buildPoints 7d and 30d", () => {
       { ts: HOUR_OF_TS - 900, players: 2 },
     ];
     const week = buildPoints("7d", TS, samples, [], 0);
-    expect(week[167]).toEqual([HOUR_OF_TS, 9]);
-    expect(week[166]).toEqual([HOUR_OF_TS - 3600, 2]);
+    expect(week[1]).toEqual([HOUR_OF_TS, 9]);
+    expect(week[0]).toEqual([HOUR_OF_TS - 3600, 2]);
   });
 
-  it("starts at the hour the server was first seen", () => {
+  it("does not invent zero hours starting at first seen", () => {
     const points = buildPoints("7d", TS, [], [], HOUR_OF_TS - 7200 + 100);
-    expect(points.map((p) => p[0])).toEqual([HOUR_OF_TS - 7200, HOUR_OF_TS - 3600, HOUR_OF_TS]);
+    expect(points.map((p) => p[0])).toEqual([]);
   });
 });
 

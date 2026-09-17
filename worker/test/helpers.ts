@@ -2,6 +2,7 @@ import type { ParsedServer } from "../src/types";
 
 export async function resetDb(db: D1Database): Promise<void> {
   await db.batch([
+    db.prepare("DELETE FROM network_samples"),
     db.prepare("DELETE FROM samples"),
     db.prepare("DELETE FROM snapshot_blobs"),
     db.prepare("DELETE FROM summaries"),

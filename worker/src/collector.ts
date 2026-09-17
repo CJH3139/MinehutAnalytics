@@ -1,3 +1,4 @@
+import { recordNetwork } from "./overview";
 import {
   blobExists,
   insertBlob,
@@ -61,6 +62,7 @@ export async function runCollector(
 
   await upsertServers(db, parsed.servers, ts);
   await insertSamples(db, parsed.servers, ts);
+  await recordNetwork(db, parsed, ts);
   await insertBlob(db, { ts, counts: blobCounts(parsed.servers) });
 
   const blobs = await loadBlobsNear(db, WINDOWS.map((w) => ts - WINDOW_SECONDS[w]));

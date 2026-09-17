@@ -14,7 +14,6 @@ struct MinehutAnalyticsWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: kind, intent: MinehutWidgetIntent.self, provider: Provider()) { entry in
             MinehutWidgetView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Minehut Analytics")
         .description("Rising or top Minehut servers.")

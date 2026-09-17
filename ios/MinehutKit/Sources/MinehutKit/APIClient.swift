@@ -12,6 +12,7 @@ public struct APIClient: Sendable {
         case top
         case topSeries
         case stats
+        case overview(GraphRange)
         case rising(RisingWindow)
         case server(id: String, range: GraphRange)
 
@@ -20,6 +21,7 @@ public struct APIClient: Sendable {
             case .top: return "top"
             case .topSeries: return "top_series"
             case .stats: return "stats"
+            case .overview(let range): return "overview_\(range.rawValue)"
             case .rising(let window): return "rising_\(window.rawValue)"
             case .server(let id, let range): return "server_\(id)_\(range.rawValue)"
             }
@@ -51,6 +53,9 @@ public struct APIClient: Sendable {
             components.path = basePath + "/v1/top/series"
         case .stats:
             components.path = basePath + "/v1/stats"
+        case .overview(let range):
+            components.path = basePath + "/v1/overview"
+            components.queryItems = [URLQueryItem(name: "range", value: range.rawValue)]
         case .rising(let window):
             components.path = basePath + "/v1/rising"
             components.queryItems = [URLQueryItem(name: "window", value: window.rawValue)]

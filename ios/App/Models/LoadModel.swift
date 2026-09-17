@@ -29,9 +29,9 @@ final class LoadModel<Value: Decodable & Sendable> {
         }
         if endpoint != lastEndpoint {
             lastEndpoint = endpoint
-            if let saved = loader.cached(Value.self, endpoint) { value = saved }
+            value = loader.cached(Value.self, endpoint)
             error = nil
-            isOffline = false
+            isOffline = value != nil
         }
         generation += 1
         let current = generation
@@ -39,8 +39,9 @@ final class LoadModel<Value: Decodable & Sendable> {
         let result = await loader.load(Value.self, endpoint)
         guard current == generation else { return }
         isLoading = false
+        guard !Task.isCancelled else { return }
         if let fresh = result.value { value = fresh }
-        isOffline = result.isOffline
+        isOffline = result.isOffline || (result.error != nil && value != nil)
         error = result.value == nil ? result.error : nil
     }
 }

@@ -4,80 +4,64 @@ import UIKit
 
 struct ServerDetailView: View {
     let id: String
-
     @State private var range: GraphRange = .day
     @State private var model = LoadModel<ServerDetailResponse>()
     @State private var copied = false
-
+    private var requestKey: String { "\(id)|\(range.rawValue)" }
     var body: some View {
         List {
+            Section { RangePicker(range: $range) }.listRowBackground(Color.clear)
             if let detail = model.value {
                 let server = detail.server
                 Section {
-                    HStack(spacing: 14) {
-                        LetterBadge(name: server.name, size: 54)
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(server.name).font(.title2.bold())
-                            Text("\(Formatters.players(server.players, max: server.maxPlayers)) players")
-                                .foregroundStyle(.secondary)
+                    HStack(spacing: 16) {
+                        LetterBadge(name: server.name, size: 60)
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(server.name).font(.system(.title2, design: .rounded, weight: .bold))
+                            Text("\(Formatters.players(server.players, max: server.maxPlayers)) players").foregroundStyle(AnalyticsTheme.mint).monospacedDigit()
                         }
-                    }
+                    }.padding(.vertical, 8)
                     HStack {
-                        Text(server.ip).font(.body.monospaced()).textSelection(.enabled)
+                        Text(server.ip).font(.callout.monospaced()).textSelection(.enabled)
                         Spacer()
-                        Button(copied ? "Copied" : "Copy") {
-                            UIPasteboard.general.string = server.ip
-                            copied = true
-                        }
-                        .buttonStyle(.bordered)
+                        Button(copied ? "Copied" : "Copy") { UIPasteboard.general.string = server.ip; copied = true }.buttonStyle(.bordered)
                     }
+                    FavoriteButton(id: server.id, name: server.name)
                     if !server.categories.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
-                                ForEach(server.categories, id: \.self) { category in
-                                    Text(category)
-                                        .font(.caption)
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(.quaternary, in: Capsule())
+                                ForEach(Array(Set(server.categories)).sorted(), id: \.self) { category in
+                                    Text(category).font(.caption).padding(.horizontal, 10).padding(.vertical, 6).background(AnalyticsTheme.cyan.opacity(0.12), in: Capsule())
                                 }
                             }
                         }
                     }
-                } header: {
-                    UpdatedHeader(updatedAt: detail.updatedAt, isOffline: model.isOffline, isLoading: model.isLoading)
-                }
-
-                Section("Players") {
-                    Picker("Range", selection: $range) {
-                        ForEach(GraphRange.allCases) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-                    PlayerChart(points: detail.points, range: detail.range).frame(height: 200)
-                    if let peak = detail.peak {
-                        LabeledContent(
-                            "Peak",
-                            value: "\(peak.players) at \(unixDate(peak.ts).formatted(date: .abbreviated, time: .shortened))"
-                        )
-                    }
-                }
-
+                } header: { UpdatedHeader(updatedAt: detail.updatedAt, isOffline: model.isOffline, isLoading: model.isLoading) }.listRowBackground(AnalyticsTheme.surface)
+                Section {
+                    PlayerChart(points: detail.points, range: detail.range, updatedAt: detail.updatedAt).frame(height: 230)
+                    Text(detail.range == .day ? "Observed players over 24h. Gaps indicate missing samples." : "Hourly player peaks over \(detail.range.rawValue). Gaps indicate missing observations.").font(.caption).foregroundStyle(.secondary)
+                } header: { Text("Player history · \(detail.range.rawValue)") }.listRowBackground(AnalyticsTheme.surface)
+                let stats = ObservationStatistics(points: detail.points)
+                Section {
+                    LabeledContent("Observed peak", value: stats.peak.map { $0.formatted() } ?? "Unavailable")
+                    LabeledContent(detail.range == .day ? "Observed average" : "Mean hourly peak", value: stats.mean.map { $0.formatted(.number.precision(.fractionLength(1))) } ?? "Unavailable")
+                    LabeledContent(detail.range == .day ? "Lowest observation" : "Lowest hourly peak", value: stats.minimum.map { $0.formatted() } ?? "Unavailable")
+                    LabeledContent("First to last observation", value: stats.change.map { Formatters.change($0) } ?? "Unavailable")
+                    LabeledContent("Observations", value: stats.count.formatted())
+                    Text("Based only on available observations in \(detail.range.rawValue); not a measure of uptime or unique visitors.").font(.caption).foregroundStyle(.secondary)
+                    Text("Listings may omit servers; gaps or zero values do not prove downtime.").font(.caption).foregroundStyle(.secondary)
+                } header: { Text("Range statistics · \(detail.range.rawValue)") }.listRowBackground(AnalyticsTheme.surface)
                 let motd = MOTDFormatter.plainText(server.motd)
-                if !motd.isEmpty {
-                    Section("MOTD") { Text(motd).font(.callout) }
-                }
-                if let author = server.author {
-                    Section { LabeledContent("Owner", value: author) }
-                }
+                Section {
+                    if !motd.isEmpty { Text(motd).font(.callout) }
+                    if let author = server.author { LabeledContent("Owner", value: author) }
+                    LabeledContent("First observed", value: unixDate(server.firstSeen).formatted(date: .abbreviated, time: .omitted))
+                } header: { Text("About this server") }.listRowBackground(AnalyticsTheme.surface)
             } else if let error = model.error {
                 ErrorStateView(error: error) { Task { await model.load(.server(id: id, range: range)) } }
-            } else {
-                LoadingRow()
-            }
-        }
-        .navigationTitle(model.value?.server.name ?? "Server")
-        .navigationBarTitleDisplayMode(.inline)
-        .refreshable { await model.load(.server(id: id, range: range)) }
-        .task(id: range) { await model.load(.server(id: id, range: range)) }
+            } else { LoadingRow() }
+        }.analyticsList().navigationTitle(model.value?.server.name ?? "Server").navigationBarTitleDisplayMode(.inline)
+            .refreshable { await model.load(.server(id: id, range: range)) }
+            .task(id: requestKey) { copied = false; await model.load(.server(id: id, range: range)) }
     }
 }

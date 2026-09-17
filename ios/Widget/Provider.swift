@@ -13,7 +13,7 @@ struct WidgetEntry: TimelineEntry {
         case .systemSmall, .accessoryInline: return 1
         case .accessoryRectangular: return 2
         case .systemLarge: return 8
-        default: return 4
+        default: return 3
         }
     }
 

@@ -1,3 +1,4 @@
+import { readOverview } from "./overview";
 import { runCollector, snapshotTs } from "./collector";
 import { blobTimesSince, getServer, latestBlobTs, readSummary, samplesSince, type SummaryKey } from "./db";
 import { buildPoints, peakOf } from "./series";
@@ -88,6 +89,12 @@ export async function handleRequest(request: Request, env: ApiEnv): Promise<Resp
   if (path === "/v1/collect") return request.method === "POST" ? collect(request, env) : notFound();
   if (request.method !== "GET") return notFound();
 
+  if (path === "/v1/overview") {
+    const range = url.searchParams.get("range") ?? "24h";
+    if (!(RANGES as string[]).includes(range)) return badRequest();
+    const body = await readOverview(env.DB, range as Range);
+    return body === null ? noData() : ok(body);
+  }
   if (path === "/v1/top") return summary(env.DB, "top");
   if (path === "/v1/top/series") return summary(env.DB, "top_series");
   if (path === "/v1/stats") return summary(env.DB, "stats");

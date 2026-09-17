@@ -23,7 +23,7 @@ struct UpdatedHeader: View {
                 Text(Formatters.updated(updatedAt, now: context.date))
             }
             if isOffline {
-                Label("Offline", systemImage: "wifi.slash").foregroundStyle(.orange)
+                Label("Saved data", systemImage: "clock.arrow.circlepath").foregroundStyle(.orange)
             }
             Spacer()
             if isLoading { ProgressView().controlSize(.mini) }

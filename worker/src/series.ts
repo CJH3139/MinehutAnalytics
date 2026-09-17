@@ -30,7 +30,9 @@ export function buildPoints(
   const lastHour = floorHour(latestTs);
   const start = Math.max(floorHour(latestTs - RANGE_SECONDS[range]) + HOUR, floorHour(firstSeen));
   const points: Point[] = [];
-  for (let hour = start; hour <= lastHour; hour += HOUR) points.push([hour, maxByHour.get(hour) ?? 0]);
+  for (let hour = start; hour <= lastHour; hour += HOUR) {
+    if (maxByHour.has(hour)) points.push([hour, maxByHour.get(hour)!]);
+  }
   return points;
 }
 

@@ -7,13 +7,13 @@ struct LetterBadge: View {
     var body: some View {
         Text(String(name.prefix(1)).uppercased())
             .font(.system(size: size * 0.5, weight: .bold, design: .rounded))
-            .foregroundStyle(.white)
+            .foregroundStyle(AnalyticsTheme.background)
             .frame(width: size, height: size)
             .background(color, in: RoundedRectangle(cornerRadius: size * 0.28))
     }
 
     private var color: Color {
-        let palette: [Color] = [.teal, .orange, .purple, .pink, .blue, .green, .indigo, .red]
+        let palette: [Color] = [AnalyticsTheme.cyan, AnalyticsTheme.mint, .teal, .blue]
         let hash = name.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) & 0x7fff_ffff }
         return palette[hash % palette.count]
     }
@@ -42,6 +42,6 @@ struct ServerRowView: View {
                 .font(.subheadline.monospacedDigit().weight(.semibold))
                 .foregroundStyle(trailingColor)
         }
-        .padding(.vertical, 2)
+        .padding(.vertical, 7)
     }
 }
