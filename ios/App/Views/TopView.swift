@@ -15,7 +15,7 @@ struct TopView: View {
                     if matches.isEmpty { ContentUnavailableView.search(text: search) }
                     ForEach(matches, id: \.element.id) { index, server in
                         NavigationLink(value: server.id) {
-                            ServerRowView(rank: index + 1, name: server.name, icon: server.icon, subtitle: "\(server.players.formatted()) players", trailing: Formatters.change(server.change24h), trailingColor: (server.change24h ?? 0) < 0 ? .orange : AnalyticsTheme.mint)
+                            ServerRowView(rank: index + 1, name: server.name, icon: server.icon, trailing: server.players.formatted(), trailingColor: AnalyticsTheme.cyan, trailingCaption: "players")
                         }.swipeActions { FavoriteButton(id: server.id, name: server.name, icon: server.icon) }
                     }
                 } header: { UpdatedHeader(updatedAt: response.updatedAt, isOffline: model.isOffline, isLoading: model.isLoading) }.listRowBackground(AnalyticsTheme.surface)

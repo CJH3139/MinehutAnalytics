@@ -27,9 +27,10 @@ struct ServerRowView: View {
     let rank: Int
     let name: String
     let icon: String?
-    let subtitle: String
+    var subtitle: String? = nil
     let trailing: String
     let trailingColor: Color
+    var trailingCaption: String? = nil
 
     var body: some View {
         HStack(spacing: 12) {
@@ -40,12 +41,22 @@ struct ServerRowView: View {
             ServerAvatar(icon: icon)
             VStack(alignment: .leading, spacing: 2) {
                 Text(name).font(.headline).lineLimit(1)
-                Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                if let subtitle {
+                    Text(subtitle).font(.subheadline).foregroundStyle(.secondary)
+                }
             }
             Spacer(minLength: 8)
-            Text(trailing)
-                .font(.subheadline.monospacedDigit().weight(.semibold))
-                .foregroundStyle(trailingColor)
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(trailing)
+                    .font(trailingCaption == nil ? .subheadline.weight(.semibold) : .title2.bold())
+                    .monospacedDigit()
+                    .foregroundStyle(trailingColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                if let trailingCaption {
+                    Text(trailingCaption).font(.caption).foregroundStyle(.secondary)
+                }
+            }
         }
         .padding(.vertical, 7)
     }
